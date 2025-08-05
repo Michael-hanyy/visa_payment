@@ -2,6 +2,11 @@ pipeline {
     agent any
 
     
+stage('Clone Repo') {
+    steps {
+        git branch: 'main', url: 'https://github.com/Michael-hanyy/visa_payment.git'
+    }
+}
 
         stage('Install Dependencies') {
             steps {
