@@ -38,10 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
      'visa_payment',
-     'rest_framework',
-    'rest_framework_simplejwt.token_blacklist',
-      
-    'rest_framework.authtoken',
+     
     
 ]
 
@@ -57,21 +54,25 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'visa_payment.urls'
 
+import os
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # Make sure this points to your templates folder
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',  # <-- required
+                'django.contrib.auth.context_processors.auth',  # <-- required
+                'django.contrib.messages.context_processors.messages',  # <-- required
             ],
         },
     },
 ]
+
+
 
 WSGI_APPLICATION = 'visa_payment.wsgi.application'
 
@@ -144,9 +145,10 @@ REST_FRAMEWORK = {
     ],
 }
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+INSTALLED_APPS += ['django_celery_beat']
 
-# Celery Configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # You must install Redis locally
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
+CELERY_TIMEZONE = "UTC"
