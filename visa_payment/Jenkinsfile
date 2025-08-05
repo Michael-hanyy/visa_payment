@@ -4,20 +4,19 @@ pipeline {
     stages {
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    python3 -m venv venv
-                    source venv/bin/activate
-                    pip install -r requirements.txt
-                '''
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Lint Code') {
+            steps {
+                sh 'flake8 .'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    source venv/bin/activate
-                    python manage.py test
-                '''
+                sh 'pytest'
             }
         }
     }
