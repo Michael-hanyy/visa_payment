@@ -1,27 +1,26 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = 'visa_payment_app'
-    }
-
     stages {
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
-                script {
-                    sh 'docker build -t $IMAGE_NAME .'
-                }
+                echo 'Building the project...'
+                // Add your build commands here (e.g., for Django, Node.js, etc.)
             }
         }
 
-        stage('Run Tests in Docker') {
+        stage('Test') {
             steps {
-                script {
-                    sh 'docker run --rm $IMAGE_NAME python manage.py test'
-                }
+                echo 'Running tests...'
+                // e.g., sh 'pytest' or sh 'npm test'
             }
         }
-        
-        // Optional: Push to Docker registry or other stages here
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application...'
+                // e.g., call deployment scripts or use SCP/SFTP
+            }
+        }
     }
 }

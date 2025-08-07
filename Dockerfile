@@ -1,13 +1,10 @@
-FROM python:3.11-slim
+FROM jenkins/jenkins:lts
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+USER root
 
-WORKDIR /app
+# Install Docker inside Jenkins
+RUN apt-get update && \
+    apt-get install -y docker.io && \
+    usermod -aG docker jenkins
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+USER jenkins
