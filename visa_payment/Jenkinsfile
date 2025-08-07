@@ -1,31 +1,35 @@
 pipeline {
     agent any
 
-    
-stage('Clone Repo') {
-    steps {
-        git branch: 'main', url: 'https://github.com/Michael-hanyy/visa_payment.git'
-    }
-}
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Michael-hanyy/visa_payment.git'
+            }
+        }
 
-        stage('Install Dependencies') {
+        stage('Docker Build & Run') {
             steps {
                 sh '''
-                    python3 -m venv venv
-                    source venv/bin/activate
-                    pip install -r requirements.txt
+                    echo "Stopping old containers..."
+                    docker-compose down || true
+
+                    echo "Building and starting Docker containers..."
+                    docker-compose up --build -d
                 '''
+            }
+        }
+
+        stage('Run Migrations') {
+            steps {
+                sh 'docker-compose exec web python manage.py migrate'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    source venv/bin/activate
-                    python manage.py test
-                '''
+                sh 'docker-compose exec web python manage.py test'
             }
         }
     }
 }
-
