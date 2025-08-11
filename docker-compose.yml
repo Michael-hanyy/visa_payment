@@ -1,16 +1,45 @@
 version: '3.8'
 
 services:
-  jenkins:
+  app:
     build: .
+    container_name: visa_payment_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    command: python manage.py runserver 0.0.0.0:8000
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: visa_db
+    ports:
+      - "5432:5432"
+
+  celery:
+    build: .
+    container_name: visa_payment_celery
+    depends_on:
+      - app
+    command: celery -A visa_payment worker --loglevel=info
+
+  jenkins:
+    image: jenkins/jenkins:lts
     container_name: jenkins
     ports:
       - "8080:8080"
-      - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock  # Needed to build/run Docker inside Jenkins
-    restart: unless-stopped
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
 
 volumes:
   jenkins_home:
