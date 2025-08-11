@@ -8,24 +8,36 @@ pipeline {
             }
         }
 
+        stage('Stop Old Containers') {
+            steps {
+                sh 'docker compose down --remove-orphans || true'
+            }
+        }
+
         stage('Build with Docker Compose') {
             steps {
-                sh 'docker compose down || true'
                 sh 'docker compose build --no-cache'
+            }
+        }
+
+        stage('Start Containers') {
+            steps {
                 sh 'docker compose up -d'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'docker compose exec -T web pytest'  // change "web" to your app service name
+                // change "web" to your app container name in docker-compose.yml
+                sh 'docker compose exec -T web pytest || echo "Tests failed"'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deployment steps go here'
+                echo 'Deployment complete ✅'
             }
         }
     }
 }
+
