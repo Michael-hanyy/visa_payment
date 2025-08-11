@@ -17,8 +17,8 @@ pipeline {
         }
 
         stage('Deploy') {
-            steps {
-                echo 'Deploying the application...'
+           steps {
+               echo 'Deploying the application...'
                 // e.g., call deployment scripts or use SCP/SFTP
             }
         }
