@@ -2,24 +2,29 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                echo 'Building the project...'
-                // Add your build commands here (e.g., for Django, Node.js, etc.)
+                git branch: 'Docker', url: 'https://github.com/Michael-hanyy/visa_payment.git'
             }
         }
 
-        stage('Test') {
+        stage('Build with Docker Compose') {
             steps {
-                echo 'Running tests...'
-                // e.g., sh 'pytest' or sh 'npm test'
+                sh 'docker compose down || true'
+                sh 'docker compose build --no-cache'
+                sh 'docker compose up -d'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'docker compose exec -T web pytest'  // change "web" to your app service name
             }
         }
 
         stage('Deploy') {
-           steps {
-               echo 'Deploying the application...'
-                // e.g., call deployment scripts or use SCP/SFTP
+            steps {
+                echo 'Deployment steps go here'
             }
         }
     }
