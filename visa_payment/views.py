@@ -1,11 +1,13 @@
+from collections import UserList
 from django.contrib.auth import authenticate, get_user_model
 from django.views import View
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db import transaction
+import users
 from .models import UserProfile
 from .tasks import send_payment_confirmation
-from django.contrib.auth import get_user_model
+
 class UserLoginView(View):
     template_name = "login.html"
 
@@ -46,14 +48,14 @@ class UserLoginView(View):
 
         # Failed authentication handling
         try:
-            user_obj = User.objects.get(username=username)
+            user_obj = users.objects.get(username=username)
             profile = UserProfile.objects.get(user=user_obj)
             with transaction.atomic():
                 profile.failed_login_attempts += 1
                 if profile.failed_login_attempts >= 2:
                     profile.suspicious_warning = True
                 profile.save()
-        except (User.DoesNotExist, UserProfile.DoesNotExist):
+        except (UserList.DoesNotExist, UserProfile.DoesNotExist):
             # User or profile doesn't exist - no need to raise error here
             pass
 
