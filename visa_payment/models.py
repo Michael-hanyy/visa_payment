@@ -1,6 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+import logging
+from django.contrib.auth import get_user_model
+
+logger = logging.getLogger(__name__)
+User = get_user_model()
+
+logger.info("Payment initiated")
+logger.warning("Suspicious activity detected")
+logger.error("Payment failed")
 class SuspiciousLogin(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     attempts = models.IntegerField(default=0)
