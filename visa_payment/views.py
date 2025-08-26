@@ -5,8 +5,15 @@ from django.http import JsonResponse
 from django.db import transaction
 from .models import UserProfile
 from .tasks import send_payment_confirmation
+import logging
+from django.contrib.auth import get_user_model
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
+
+logger.info("Payment initiated")
+logger.warning("Suspicious activity detected")
+logger.error("Payment failed")
 
 class UserLoginView(View):
     template_name = "login.html"
