@@ -1,0 +1,22 @@
+echo "
+# Python
+*.pyc
+__pycache__/
+venv/
+.env
+
+# Django
+db.sqlite3
+media/
+
+# Docker
+*.log
+*.pid
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Jenkins
+jenkins_home/
+" >> .gitignore
