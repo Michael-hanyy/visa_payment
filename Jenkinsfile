@@ -1,43 +1,56 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_COMPOSE = "docker-compose"
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'Docker', url: 'https://github.com/Michael-hanyy/visa_payment.git'
+                echo "Checking out code..."
+                checkout scm
             }
         }
 
-        stage('Stop Old Containers') {
+        stage('Build Docker Containers') {
             steps {
-                sh 'docker compose down --remove-orphans || true'
+                echo "Building Docker containers..."
+                sh "${DOCKER_COMPOSE} build"
             }
         }
 
-        stage('Build with Docker Compose') {
+        stage('Run Migrations') {
             steps {
-                sh 'docker compose build --no-cache'
+                echo "Applying Django migrations..."
+                sh "${DOCKER_COMPOSE} run --rm app python manage.py migrate"
             }
         }
 
-        stage('Start Containers') {
+        stage('Run Mock Tests') {
             steps {
-                sh 'docker compose up -d'
+                echo "Running mock tests..."
+                sh "${DOCKER_COMPOSE} run --rm app python manage.py test tests"
             }
         }
 
-        stage('Run Tests') {
+        stage('Cleanup') {
             steps {
-                // change "web" to your app container name in docker-compose.yml
-                sh 'docker compose exec -T web pytest || echo "Tests failed"'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deployment complete ✅'
+                echo "Stopping containers..."
+                sh "${DOCKER_COMPOSE} down"
             }
         }
     }
-}
 
+    post {
+        always {
+            echo "Pipeline finished."
+        }
+        success {
+            echo "All tests passed ✅"
+        }
+        failure {
+            echo "Some tests failed ❌"
+        }
+    }
+}

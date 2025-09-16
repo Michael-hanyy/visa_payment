@@ -1,45 +1,52 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  app:
-    build: .
-    container_name: visa_payment_app
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    env_file:
-      - .env
-    volumes:
-      - .:/app
-    command: python manage.py runserver 0.0.0.0:8000
-
   db:
     image: postgres:15
     environment:
+      POSTGRES_DB: visa_db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: visa_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
-  celery:
-    build: .
-    container_name: visa_payment_celery
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    env_file:
+      - .env
     depends_on:
-      - app
-    command: celery -A visa_payment worker --loglevel=info
+      - db
+      - redis
+    ports:
+      - "8000:8000"
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
 
   jenkins:
     image: jenkins/jenkins:lts
-    container_name: jenkins
     ports:
       - "8080:8080"
+      - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
 
 volumes:
+  postgres_data:
   jenkins_home:

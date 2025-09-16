@@ -1,15 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.conf import settings
-import logging
 from django.contrib.auth import get_user_model
+import logging
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
-logger.info("Payment initiated")
-logger.warning("Suspicious activity detected")
-logger.error("Payment failed")
 class SuspiciousLogin(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     attempts = models.IntegerField(default=0)
@@ -17,6 +13,15 @@ class SuspiciousLogin(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - Attempts: {self.attempts} - Warning: {self.warning_issued}"
+
+    def log_activity(self):
+        if self.attempts > 3:
+            logger.warning("Suspicious activity detected")
+            self.warning_issued = True
+        else:
+            logger.info("Payment initiated")
+        return "Activity logged"
+
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     failed_login_attempts = models.IntegerField(default=0)
@@ -26,3 +31,9 @@ class UserProfile(models.Model):
     
     def __str__(self):
         return f"{self.user.username}'s profile"
+
+    def log_payment_status(self, failed=False):
+        if failed:
+            logger.error("Payment failed")
+        else:
+            logger.info("Payment successful")
