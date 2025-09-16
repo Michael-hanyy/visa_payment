@@ -15,18 +15,19 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for caching
+# Copy requirements first to leverage Docker cache
 COPY requirements.txt .
 
-# Install Python dependencies
+# Upgrade pip and install dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Copy the project files
+# Copy the rest of the project
 COPY . .
 
-# Expose port (Django default)
+# Expose default Django port
 EXPOSE 8000
 
-# Run the Django development server
+# Default command: Django dev server
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+

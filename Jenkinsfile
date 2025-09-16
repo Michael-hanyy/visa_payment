@@ -22,7 +22,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                echo "Running Django tests (with mocks)..."
+                echo "Running Django tests..."
                 sh "${DOCKER_COMPOSE} run --rm app python manage.py test tests"
             }
         }
@@ -47,4 +47,6 @@ pipeline {
         }
     }
 }
+
+
 
