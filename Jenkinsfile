@@ -20,16 +20,9 @@ pipeline {
             }
         }
 
-        stage('Run Migrations') {
+        stage('Run Tests') {
             steps {
-                echo "Applying Django migrations..."
-                sh "${DOCKER_COMPOSE} run --rm app python manage.py migrate"
-            }
-        }
-
-        stage('Run Mock Tests') {
-            steps {
-                echo "Running mock tests..."
+                echo "Running Django tests (with mocks)..."
                 sh "${DOCKER_COMPOSE} run --rm app python manage.py test tests"
             }
         }
@@ -47,10 +40,11 @@ pipeline {
             echo "Pipeline finished."
         }
         success {
-            echo "All tests passed ✅"
+            echo "Tests passed ✅"
         }
         failure {
-            echo "Some tests failed ❌"
+            echo "Tests failed ❌"
         }
     }
 }
+
